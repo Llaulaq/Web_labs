@@ -7,3 +7,4 @@ __pycache__/
 .env
 data/
 .coverage
+lab8/nginx/certs/

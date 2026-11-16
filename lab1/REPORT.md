@@ -34,6 +34,19 @@ curl -v http://localhost:8000/
 curl "http://localhost:8000/echo?foo=bar" -H "X-Test: lab1"
 ```
 
+## Проверка в Docker (выполнено)
+
+```bash
+cd lab1
+docker compose up -d --build
+curl http://localhost:8000/health        # → {"status":"ok"} (HTTP 200)
+curl "http://localhost:8000/echo?foo=bar" -H "X-Test: docker"
+# → echo отвечает; client в ответе — 172.18.0.1 (адрес docker-сети)
+docker compose down
+```
+
+Контейнер собран из `lab1/Dockerfile` (python:3.11-slim), приложение доступно на порту 8000 хоста.
+
 Пример реального ответа сервера (виден в `curl -v`):
 
 ```

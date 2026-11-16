@@ -50,6 +50,35 @@ docker compose -f lab8/docker-compose.yml up --build
 
 Вся разница — в передаче email как параметра вместо подстановки в строку запроса.
 
+## Проверка в Docker (выполнено)
+
+```bash
+bash lab8/nginx/generate-certs.sh                      # самоподписанный сертификат
+docker compose -f lab8/docker-compose.yml up -d --build
+```
+
+Результаты проверки:
+
+```
+GET  http://localhost/health      → 301 → https://localhost/health   (редирект 80→443)
+GET  https://localhost/health     → 200 {"status":"ok"}              (API через прокси)
+GET  https://localhost/static/css/style.css → 200                    (статика напрямую nginx)
+POST https://localhost/auth/register → 201                           (запись в БД в volume)
+POST https://localhost/auth/login → access+refresh токены
+GET  https://localhost/auth/me + Bearer → 200 профиль
+
+Заголовки ответа:
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Strict-Transport-Security: max-age=31536000
+  Content-Security-Policy: default-src 'self'
+
+Rate limiting (20 быстрых запросов к /health):
+  200 x12 → 503, 200, 503 x3 …   (лимит 5 r/s, burst=10 — срабатывает)
+```
+
+Стоп: `docker compose -f lab8/docker-compose.yml down`. Сертификаты (`lab8/nginx/certs/`) в репозиторий не коммитятся — генерируются скриптом.
+
 ## Ответы на задания занятия 11
 
 ### Задание 1: Хеширование паролей
@@ -92,4 +121,4 @@ docker compose -f lab8/docker-compose.yml up --build
 
 ## Выводы
 
-Подготовлена production-конфигурация Nginx: reverse proxy, раздача статики, HTTPS, заголовки безопасности, rate limiting. Приложение защищено от основных уязвимостей OWASP Top 10: инъекции (параметризация), слабые пароли (хеширование), нарушенный контроль доступа (JWT + проверка), XSS (CSP, экранирование), CSRF (токены в заголовке + CORS). Локальная проверка стека ограничена отсутствием Docker на машине — конфигурации готовы к запуску `docker compose -f lab8/docker-compose.yml up`.
+Подготовлена и **проверена в Docker** production-конфигурация Nginx: reverse proxy, раздача статики, HTTPS с редиректом, заголовки безопасности, rate limiting. Приложение защищено от основных уязвимостей OWASP Top 10: инъекции (параметризация), слабые пароли (хеширование), нарушенный контроль доступа (JWT + проверка), XSS (CSP, экранирование), CSRF (токены в заголовке + CORS). Полный стек `app + nginx` поднят и прогнан через curl: все сценарии работают.
