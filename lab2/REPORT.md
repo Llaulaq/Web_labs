@@ -14,7 +14,7 @@
   - `PUT /users/{id}` — обновление (частичное: передаются только изменяемые поля)
   - `DELETE /users/{id}` — удаление (ответ **204** без тела)
 - Бизнес-правило: уникальность email — дубликат даёт **409 Conflict**
-- Ручная OpenAPI-спецификация: `openapi/users.yaml`
+- Ручная OpenAPI-спецификация: `lab2/openapi.yaml`
 - Автоматическая документация: `http://localhost:8000/docs` (Swagger UI)
 
 ## Проверка работы (curl)
@@ -120,7 +120,7 @@ DELETE /users/1                                                   → 204
 
 ## Задание 8: OpenAPI спецификация
 
-См. `openapi/users.yaml`.
+См. `lab2/openapi.yaml`.
 
 ## Задание 9: Анализ JSONPlaceholder
 
@@ -136,7 +136,7 @@ curl -X DELETE .../posts/1                            # 200, пустой объ
 
 ## Задание 10: API интернет-магазина
 
-Документация: `docs/shop-api.md`.
+Документация: `lab2/shop-api.md`.
 
 ---
 

@@ -8,11 +8,11 @@
 ## Что сделано
 
 - Настроено окружение: Python 3.13, виртуальное окружение `.venv`, FastAPI + Uvicorn
-- Создан простой HTTP-сервер (`app/main.py`) с endpoints:
+- Создан простой HTTP-сервер (`lab1/app/main.py`) с endpoints:
   - `GET /` — информация о сервисе
   - `GET /health` — проверка работоспособности
   - `GET /echo` — возвращает детали HTTP-запроса (метод, заголовки, параметры) для изучения структуры запроса/ответа
-- Написан `Dockerfile` и `docker-compose.yml` для контейнеризации
+- Написан `Dockerfile` и `docker-compose.yml` для контейнеризации (в папке `lab1/`)
 
 ## Запуск
 
@@ -181,15 +181,15 @@ curl -s https://api.github.com/users/lexforfree | head
 
 ### Задание 3: config.yaml
 
-См. `docker/configs/config.yaml` в репозитории.
+См. `lab1/docker/configs/config.yaml`.
 
 ### Задание 4: docker-compose.yml
 
-См. `docker-compose.yml` в репозитории (вариант с PostgreSQL и Redis).
+См. `lab1/docker-compose.yml` и `lab1/docker-compose.full.yml` (вариант с PostgreSQL и Redis).
 
 ### Задание 5: Dockerfile
 
-См. `Dockerfile` в репозитории — `python:3.11-slim`, рабочая директория `/app`, установка зависимостей из `requirements.txt`, копирование кода, запуск через `uvicorn`.
+См. `lab1/Dockerfile` — `python:3.11-slim`, рабочая директория `/app`, установка зависимостей из `requirements.txt`, копирование кода, запуск через `uvicorn`.
 
 ### Задание 6–7: Работа с Docker и docker-compose
 
