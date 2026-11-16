@@ -3,6 +3,7 @@ import logging
 from fastapi import FastAPI, Request
 
 from app.errors import install_exception_handlers
+from app.api.accounts import router as accounts_router
 from app.api.auth import router as auth_router
 from app.api.users import router as users_router
 
@@ -30,6 +31,7 @@ async def log_requests(request: Request, call_next):
 
 app.include_router(users_router)
 app.include_router(auth_router)
+app.include_router(accounts_router)
 
 
 @app.get("/")

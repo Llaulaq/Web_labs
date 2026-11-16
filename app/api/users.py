@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 
 from app.deps import Svc
+from app.repositories.posts import PostRepository
 from app.schemas import User, UserCreate, UserList, UserUpdate
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -37,3 +38,13 @@ def update_user(service: Svc, user_id: int, payload: UserUpdate):
 @router.delete("/{user_id}", status_code=204)
 def delete_user(service: Svc, user_id: int):
     service.delete(user_id)
+
+
+@router.get("/{user_id}/posts")
+def get_user_posts(service: Svc, user_id: int):
+    """Посты пользователя с автором — один JOIN-запрос, без N+1."""
+    conn = service.repo.conn  # репозиторий уже держит соединение
+    posts = PostRepository(conn).list_with_author(user_id)
+    if not posts:
+        service.get(user_id)  # вернёт 404, если и пользователя нет
+    return posts
