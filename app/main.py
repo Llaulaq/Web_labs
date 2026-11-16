@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI, Request
 
 from app.errors import install_exception_handlers
-from app.users import router as users_router
+from app.api.users import router as users_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -12,6 +12,21 @@ logging.basicConfig(
 
 app = FastAPI(title="Web Labs API", version="1.0.0")
 install_exception_handlers(app)
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    import time
+
+    started = time.perf_counter()
+    response = await call_next(request)
+    elapsed_ms = round((time.perf_counter() - started) * 1000, 1)
+    logging.getLogger("app").info(
+        "%s %s → %s (%s ms)", request.method, request.url.path, response.status_code, elapsed_ms
+    )
+    return response
+
+
 app.include_router(users_router)
 
 
