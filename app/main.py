@@ -1,6 +1,8 @@
 import logging
+import os
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.errors import install_exception_handlers
 from app.api.accounts import router as accounts_router
@@ -14,6 +16,16 @@ logging.basicConfig(
 
 app = FastAPI(title="Web Labs API", version="1.0.0")
 install_exception_handlers(app)
+
+# CORS: список разрешённых origin'ов из окружения (по умолчанию — только сам сервер)
+allowed = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "http://localhost").split(",")]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["Authorization", "Content-Type"],
+)
 
 
 @app.middleware("http")

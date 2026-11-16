@@ -1,0 +1,30 @@
+# Полный стек: приложение + nginx reverse proxy (лабораторная 8)
+# Запуск из корня репозитория:
+#   bash lab8/nginx/generate-certs.sh   # один раз, создать сертификат
+#   docker compose -f lab8/docker-compose.yml up --build
+# Приложение: http://localhost (→ редирект на https://localhost)
+services:
+  app:
+    build: ..
+    expose:
+      - "8000"
+    environment:
+      - DATABASE_PATH=/data/app.db
+      - SECRET_KEY=${SECRET_KEY:-dev-only-secret-change-me}
+    volumes:
+      - app_data:/data
+
+  nginx:
+    image: nginx:1.25-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./static:/usr/share/nginx/static:ro
+    depends_on:
+      - app
+
+volumes:
+  app_data:

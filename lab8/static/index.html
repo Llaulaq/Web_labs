@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Web Labs — статика через Nginx</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <h1>Web Labs</h1>
+  <p>Эта страница отдаётся Nginx напрямую (location /static/), минуя приложение.</p>
+  <p>API доступно через reverse proxy: <a href="/health">/health</a>, <a href="/docs">/docs</a></p>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
