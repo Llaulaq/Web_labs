@@ -2,26 +2,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
-from app.config import Settings, load_settings
-from app.db import connect
-from app.repositories.users import UserRepository
+from app.deps import Svc
 from app.schemas import User, UserCreate, UserList, UserUpdate
-from app.services.users import UserService
 
 router = APIRouter(prefix="/users", tags=["users"])
-
-
-def get_settings() -> Settings:
-    return load_settings()
-
-
-def get_service(settings: Annotated[Settings, Depends(get_settings)]) -> UserService:
-    """DI-фабрика: собирает цепочку Handler → Service → Repository → БД."""
-    conn = connect(settings.database_path)
-    return UserService(repo=UserRepository(conn))
-
-
-Svc = Annotated[UserService, Depends(get_service)]
 
 
 @router.get("", response_model=UserList)

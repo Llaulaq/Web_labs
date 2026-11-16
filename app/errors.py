@@ -20,6 +20,11 @@ class AppError(Exception):
         super().__init__(message)
 
 
+class UnauthorizedError(AppError):
+    def __init__(self, message: str = "Требуется аутентификация"):
+        super().__init__("unauthorized", message, status_code=401)
+
+
 class ConflictError(AppError):
     def __init__(self, message: str, details: Any = None):
         super().__init__("conflict", message, status_code=409, details=details)

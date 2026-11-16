@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.config import Settings
 from app.main import app
-from app.api.users import get_settings
+from app.deps import get_settings
 
 
 @pytest.fixture()

@@ -4,6 +4,7 @@ import sqlite3
 from app.errors import ConflictError, NotFoundError
 from app.repositories.users import UserRepository
 from app.schemas import User, UserCreate, UserUpdate
+from app.security import hash_password
 
 logger = logging.getLogger("app")
 
@@ -30,9 +31,9 @@ class UserService:
                 "Пользователь с таким email уже существует", {"email": "already_taken"}
             )
         try:
-            user = self.repo.create(payload)
+            user = self.repo.create(payload, password_hash=hash_password(payload.password))
         except sqlite3.IntegrityError:
-            # Защита от гонки: UNIQUE-ограничение БД сработало одновременной проверки
+            # Защита от гонки: UNIQUE-ограничение БД сработало при одновременной проверке
             raise ConflictError(
                 "Пользователь с таким email уже существует", {"email": "already_taken"}
             )

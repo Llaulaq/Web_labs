@@ -35,10 +35,17 @@ class UserRepository:
         ).fetchone()
         return User(**row) if row else None
 
-    def create(self, payload: UserCreate) -> User:
+    def get_credentials(self, email: str) -> tuple[int, str, str] | None:
+        """Возвращает (id, email, password_hash) для проверки логина."""
+        row = self.conn.execute(
+            "SELECT id, email, password_hash FROM users WHERE email = ?", (email,)
+        ).fetchone()
+        return (row["id"], row["email"], row["password_hash"]) if row else None
+
+    def create(self, payload: UserCreate, password_hash: str) -> User:
         cursor = self.conn.execute(
-            "INSERT INTO users (name, email, age) VALUES (?, ?, ?)",
-            (payload.name, payload.email, payload.age),
+            "INSERT INTO users (name, email, age, password_hash) VALUES (?, ?, ?, ?)",
+            (payload.name, payload.email, payload.age, password_hash),
         )
         self.conn.commit()
         return self.get(cursor.lastrowid)
