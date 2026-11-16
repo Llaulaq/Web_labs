@@ -1,0 +1,183 @@
+openapi: 3.0.3
+info:
+  title: Users API
+  version: 1.0.0
+  description: REST API для управления пользователями (лабораторная работа 2)
+
+servers:
+  - url: http://localhost:8000
+
+paths:
+  /users:
+    get:
+      summary: Список пользователей
+      description: Возвращает список пользователей с пагинацией и поиском
+      tags: [users]
+      parameters:
+        - name: skip
+          in: query
+          schema: { type: integer, minimum: 0, default: 0 }
+          description: Сколько записей пропустить
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 10 }
+          description: Максимум записей на страницу
+        - name: search
+          in: query
+          schema: { type: string }
+          description: Поиск по имени или email (регистронезависимый)
+      responses:
+        '200':
+          description: Список пользователей
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total: { type: integer, example: 1 }
+                  skip: { type: integer, example: 0 }
+                  limit: { type: integer, example: 10 }
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/User' }
+              example:
+                total: 1
+                skip: 0
+                limit: 10
+                items:
+                  - id: 1
+                    name: John Doe
+                    email: john@example.com
+                    age: 30
+    post:
+      summary: Создание пользователя
+      tags: [users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserCreate' }
+            example:
+              name: John Doe
+              email: john@example.com
+              age: 30
+      responses:
+        '201':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+              example:
+                id: 1
+                name: John Doe
+                email: john@example.com
+                age: 30
+        '400':
+          description: Некорректные данные (невалидный email, пустое имя)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              example: { detail: 'Валидация не пройдена' }
+        '409':
+          description: Пользователь с таким email уже существует
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              example: { detail: 'Пользователь с таким email уже существует' }
+
+  /users/{user_id}:
+    get:
+      summary: Получение пользователя по ID
+      tags: [users]
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Пользователь найден
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              example: { detail: 'Пользователь не найден' }
+    put:
+      summary: Обновление пользователя (полное или частичное)
+      tags: [users]
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserUpdate' }
+            example:
+              age: 31
+      responses:
+        '200':
+          description: Пользователь обновлён
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409':
+          description: Email занят другим пользователем
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+    delete:
+      summary: Удаление пользователя
+      tags: [users]
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '204':
+          description: Пользователь удалён (тело ответа пустое)
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        name: { type: string, example: John Doe }
+        email: { type: string, format: email, example: john@example.com }
+        age: { type: integer, nullable: true, example: 30 }
+      required: [id, name, email]
+    UserCreate:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        email: { type: string, format: email }
+        age: { type: integer, minimum: 0, maximum: 150, nullable: true }
+      required: [name, email]
+    UserUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100, nullable: true }
+        email: { type: string, format: email, nullable: true }
+        age: { type: integer, minimum: 0, maximum: 150, nullable: true }
+    Error:
+      type: object
+      properties:
+        detail: { type: string }

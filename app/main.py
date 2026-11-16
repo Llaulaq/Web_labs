@@ -1,6 +1,9 @@
 from fastapi import FastAPI, Request
 
+from app.users import router as users_router
+
 app = FastAPI(title="Web Labs API", version="1.0.0")
+app.include_router(users_router)
 
 
 @app.get("/")
