@@ -1,8 +1,17 @@
+import logging
+
 from fastapi import FastAPI, Request
 
+from app.errors import install_exception_handlers
 from app.users import router as users_router
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+
 app = FastAPI(title="Web Labs API", version="1.0.0")
+install_exception_handlers(app)
 app.include_router(users_router)
 
 
@@ -18,6 +27,12 @@ def root():
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/debug/boom")
+def boom():
+    """Демонстрация обработки необработанной ошибки (500)."""
+    raise RuntimeError("Преднамеренная ошибка для демонстрации")
 
 
 @app.get("/echo")

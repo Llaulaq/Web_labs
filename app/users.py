@@ -1,26 +1,57 @@
-from fastapi import APIRouter, HTTPException, Query, status
-from pydantic import BaseModel, EmailStr, Field
+import logging
+import re
 
+from fastapi import APIRouter, Query
+from pydantic import BaseModel, EmailStr, Field, field_validator
+
+from app.errors import ConflictError, NotFoundError
+
+logger = logging.getLogger("app")
 router = APIRouter(prefix="/users", tags=["users"])
+
+NAME_RE = re.compile(r"^[A-Za-zА-Яа-яЁё\s\-]+$")
+PASSWORD_RE = re.compile(r"^(?=.*[A-Za-z])(?=.*\d).+$")
 
 
 class UserCreate(BaseModel):
-    name: str = Field(min_length=1, max_length=100)
+    name: str = Field(min_length=2, max_length=50)
     email: EmailStr
-    age: int | None = Field(default=None, ge=0, le=150)
+    age: int = Field(ge=18, le=120)
+    password: str = Field(min_length=8, max_length=128, exclude=True)
+
+    @field_validator("name")
+    @classmethod
+    def name_only_letters(cls, value: str) -> str:
+        if not NAME_RE.match(value):
+            raise ValueError("Имя должно содержать только буквы, пробелы и дефисы")
+        return value
+
+    @field_validator("password")
+    @classmethod
+    def password_strong(cls, value: str) -> str:
+        if not PASSWORD_RE.match(value):
+            raise ValueError("Пароль должен содержать буквы и цифры")
+        return value
 
 
 class UserUpdate(BaseModel):
-    name: str | None = Field(default=None, min_length=1, max_length=100)
+    name: str | None = Field(default=None, min_length=2, max_length=50)
     email: EmailStr | None = None
-    age: int | None = Field(default=None, ge=0, le=150)
+    age: int | None = Field(default=None, ge=18, le=120)
+
+    @field_validator("name")
+    @classmethod
+    def name_only_letters(cls, value: str | None) -> str | None:
+        if value is not None and not NAME_RE.match(value):
+            raise ValueError("Имя должно содержать только буквы, пробелы и дефисы")
+        return value
 
 
 class User(BaseModel):
     id: int
     name: str
     email: EmailStr
-    age: int | None = None
+    age: int
 
 
 class UserList(BaseModel):
@@ -57,21 +88,20 @@ def list_users(
 def get_user(user_id: int):
     user = _users.get(user_id)
     if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+        raise NotFoundError("Пользователь не найден")
     return user
 
 
-@router.post("", response_model=User, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=User, status_code=201)
 def create_user(payload: UserCreate):
     global _next_id
     if _email_taken(payload.email):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Пользователь с таким email уже существует",
-        )
-    user = User(id=_next_id, **payload.model_dump())
+        logger.info("Отказ в создании: email занят: %s", payload.email)
+        raise ConflictError("Пользователь с таким email уже существует", {"email": "already_taken"})
+    user = User(id=_next_id, name=payload.name, email=payload.email, age=payload.age)
     _users[user.id] = user
     _next_id += 1
+    logger.info("Создан пользователь id=%s email=%s", user.id, user.email)
     return user
 
 
@@ -79,20 +109,19 @@ def create_user(payload: UserCreate):
 def update_user(user_id: int, payload: UserUpdate):
     user = _users.get(user_id)
     if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+        raise NotFoundError("Пользователь не найден")
     data = payload.model_dump(exclude_unset=True)
     if "email" in data and _email_taken(data["email"], exclude_id=user_id):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Пользователь с таким email уже существует",
-        )
+        raise ConflictError("Пользователь с таким email уже существует", {"email": "already_taken"})
     updated = user.model_copy(update=data)
     _users[user_id] = updated
+    logger.info("Обновлён пользователь id=%s", user_id)
     return updated
 
 
-@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{user_id}", status_code=204)
 def delete_user(user_id: int):
     if user_id not in _users:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+        raise NotFoundError("Пользователь не найден")
     del _users[user_id]
+    logger.info("Удалён пользователь id=%s", user_id)
