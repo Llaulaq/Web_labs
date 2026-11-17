@@ -61,6 +61,20 @@ docker compose down
 
 ---
 
+## Скриншоты
+
+Документация Swagger UI работающего сервера:
+
+![Swagger UI](screenshots/swagger-ui.png)
+
+Endpoint `/echo` — структура HTTP-запроса:
+
+![Echo](screenshots/echo.png)
+
+**Дополнительно вручную:** DevTools → Network → анализ первого запроса любого сайта (задание 8 занятия 1): метод, заголовки, статус, Content-Type, waterfall.
+
+---
+
 ## Задание 1: Анализ HTTP-запроса
 
 Дан запрос:

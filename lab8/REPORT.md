@@ -50,6 +50,20 @@ docker compose -f lab8/docker-compose.yml up --build
 
 Вся разница — в передаче email как параметра вместо подстановки в строку запроса.
 
+## Скриншоты
+
+Статическая страница по HTTPS, отдаётся Nginx напрямую (лаб. 8):
+
+![Статика через Nginx по HTTPS](screenshots/https-static.png)
+
+Swagger UI через Nginx reverse proxy (https://localhost/docs):
+
+![Swagger UI через прокси](screenshots/https-docs-proxy.png)
+
+**Дополнительно вручную:** окно Docker Desktop с контейнерами `lab8-app-1` и `lab8-nginx-1`; вкладка Network в DevTools с заголовками безопасности.
+
+---
+
 ## Проверка в Docker (выполнено)
 
 ```bash

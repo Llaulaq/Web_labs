@@ -39,6 +39,16 @@
     SEARCH posts USING COVERING INDEX idx_posts_author (author_id=?)
 ```
 
+## Скриншоты
+
+`GET /users/{id}/posts` — посты с данными автора одним JOIN-запросом (решение N+1):
+
+![Посты с автором одним запросом](screenshots/posts-join.png)
+
+**Дополнительно вручную:** скриншот вывода `lab7/benchmark.py` в терминале (гонка потоков, замеры N+1 vs JOIN, EXPLAIN).
+
+---
+
 ## Ответы на задания занятия 9
 
 ### Задание 1: Транзакция перевода

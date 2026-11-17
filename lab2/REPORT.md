@@ -31,6 +31,14 @@ DELETE /users/1                                                   → 204
 
 ---
 
+## Скриншоты
+
+Автодокументация Swagger UI со всеми endpoints API (users, auth, accounts):
+
+![Swagger UI — endpoints API](screenshots/swagger-users.png)
+
+---
+
 ## Задание 1: Проектирование API для блога
 
 **Posts** — `GET /posts`, `GET /posts/{id}`, `POST /posts`, `PUT /posts/{id}`, `DELETE /posts/{id}`

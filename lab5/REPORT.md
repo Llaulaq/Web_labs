@@ -25,6 +25,14 @@ TOTAL: 92% coverage
 
 ---
 
+## Скриншоты
+
+**Вручную** (терминал/Docker не захватываются автоматически):
+- `python -m pytest tests -q --cov=app` — зелёный прогон 42 тестов с покрытием;
+- Docker Desktop — контейнеры лаб 1 и 8.
+
+---
+
 ## Задание 1: Unit-тест валидации email
 
 Реализовано в `app/utils.py` + `tests/unit/test_validate_email.py` (параметризованный тест, формат Arrange-Act-Assert):

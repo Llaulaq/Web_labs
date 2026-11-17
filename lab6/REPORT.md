@@ -35,6 +35,14 @@ SELECT email, password_hash FROM users:
 → [('john@example.com', 'pbkdf2$Qtr6toniUmlG+Jlz3D...')]  — пароль в открытом виде не хранится
 ```
 
+## Скриншоты
+
+Успешный вход: сервер выдаёт пару JWT (access + refresh):
+
+![JWT-токены при логине](screenshots/login-tokens.png)
+
+---
+
 ## Сравнение Session vs JWT (задание 4 занятия 7)
 
 | Критерий | Session (cookies) | JWT |
