@@ -60,7 +60,9 @@ Swagger UI через Nginx reverse proxy (https://localhost/docs):
 
 ![Swagger UI через прокси](screenshots/https-docs-proxy.png)
 
-**Дополнительно вручную:** окно Docker Desktop с контейнерами `lab8-app-1` и `lab8-nginx-1`; вкладка Network в DevTools с заголовками безопасности.
+Docker Desktop — работающий стек `lab8` (контейнеры app-1 и nginx-1):
+
+![Docker Desktop](screenshots/docker-desktop.png)
 
 ---
 
