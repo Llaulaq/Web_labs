@@ -12,7 +12,7 @@
 - **Reverse proxy**: `/` → `http://app:8000` с заголовками `X-Real-IP`, `X-Forwarded-For`, `X-Forwarded-Proto`
 - **Статика**: `location /static/` отдаётся Nginx напрямую (`alias`), с кэшированием `expires 30d`
 - **HTTPS**: сервер на 443 с TLS 1.2/1.3, самоподписанный сертификат (`lab8/nginx/generate-certs.sh`), редирект 80 → 443, HSTS
-- **Заголовки безопасности**: `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Content-Security-Policy: default-src 'self'`
+- **Заголовки безопасности**: `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Content-Security-Policy` (строгий `default-src 'self'` + явный whitelist на CDN Swagger UI — без него CSP блокировал `/docs`, это было найдено и исправлено при проверке)
 - **Rate limiting**: `limit_req_zone` 5 r/s на IP с burst=10 — защита от брутфорса `/auth/login`
 - **gzip** для text/json/css/js
 - **Docker-стек** (`lab8/docker-compose.yml`): app + nginx (порты 80/443)
@@ -85,7 +85,9 @@ GET  https://localhost/auth/me + Bearer → 200 профиль
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Strict-Transport-Security: max-age=31536000
-  Content-Security-Policy: default-src 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+                           style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+                           img-src 'self' data: https://fastapi.tiangolo.com
 
 Rate limiting (20 быстрых запросов к /health):
   200 x12 → 503, 200, 503 x3 …   (лимит 5 r/s, burst=10 — срабатывает)
