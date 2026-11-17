@@ -73,6 +73,10 @@ Endpoint `/echo` — структура HTTP-запроса:
 
 **Дополнительно вручную:** DevTools → Network → анализ первого запроса любого сайта (задание 8 занятия 1): метод, заголовки, статус, Content-Type, waterfall.
 
+DevTools → Network, вкладка «Все запросы» со статусами, типами и waterfall:
+
+![DevTools Network](screenshots/network-devtools.png)
+
 ---
 
 ## Задание 1: Анализ HTTP-запроса
